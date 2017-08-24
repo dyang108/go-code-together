@@ -78,5 +78,6 @@ export var EventTypes = {
   Connection: 'connect',
   EditorChange: 'change',
   TextInsertion: 'insert',
-  TextRemoval: 'remove'
+  TextRemoval: 'remove',
+  UserCountChange: 'countchange'
 }

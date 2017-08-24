@@ -1,2 +1,2 @@
-kill $(lsof -i :8000 -c webcoder-server -c ^Google -t)
-nodemon --exec "go build && ./webcoder-server" server.go
+kill $(lsof -i :8000 -c go-code-together -c ^Google -t)
+nodemon --exec "go build && ./go-code-together" server.go

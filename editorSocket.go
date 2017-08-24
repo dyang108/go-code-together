@@ -19,6 +19,8 @@ func handleDisconnectionEvent (so socketio.Socket, roomId string) socketHandlerF
             return
         }
 
+        so.BroadcastTo(roomId, "countchange", "-1")
+
         var result Room
         err := Rooms.Find(q).One(&result)
         if err != nil {
@@ -47,6 +49,8 @@ func handleRoomEvent (so socketio.Socket) socketHandlerFunc {
             log.Println(err.Error())
             return 
         }
+        so.BroadcastTo(roomId, "countchange", "1")
+        so.Emit("countchange", "1")
 
         so.On("disconnection", handleDisconnectionEvent(so, roomId))
     }

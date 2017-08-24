@@ -15,6 +15,7 @@ type EditorTmpl struct {
     Socket string
     Text string
     Env string
+    Count int
 }
 
 func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
@@ -33,6 +34,7 @@ func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
             Socket: "ws://localhost:8000/",
             Text: result.Text,
             Env: "dev",
+            Count: result.Count,
         }
         t, _ := template.ParseFiles("editor.html")
         t.Execute(w, tmplVars)

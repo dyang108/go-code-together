@@ -3,6 +3,7 @@ import { languages, keybindings } from './lists'
 
 var langSelect = document.getElementById('language-select')
 var keybindingSelect = document.getElementById('keybinding-select')
+var userCount = document.getElementById('user-count')
 
 function populateLanguages () {
   languages.forEach(lang => {
@@ -23,6 +24,12 @@ function populateKeyBindings () {
     opt.innerHTML = kbtype.name
     keybindingSelect.appendChild(opt)
   })
+}
+
+export function changeUserCount (change) {
+  let currCount = parseInt(userCount.innerHTML)
+  currCount += parseInt(change)
+  userCount.innerHTML = currCount
 }
 
 langSelect.onchange = function () {
