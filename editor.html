@@ -1,0 +1,36 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>WebCoder</title>
+    <link rel="stylesheet" type="text/css" href="/assets/styles/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/styles/styles.css">
+</head>
+
+<body>
+    <script type="text/javascript">
+    var mode = '{{.Mode}}', socketName = '{{.Socket}}'
+    </script>
+    <div id="content">
+        <div class="pick">
+            <div class="form-group col-sm-4 col-xs-6">
+                <select class="form-control input-sm select-pref" id="language-select">
+                </select>
+            </div>
+            <div class="form-group col-sm-2 col-xs-6 pull-right">
+                <select class="form-control input-sm select-pref" id="keybinding-select"></select>
+            </div>
+        </div>
+        <pre id="editor">{{.Text}}</pre>
+    </div>
+    <script src="/assets/js/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    {{if (eq .Env "dev")}}
+    <script src="/assets/js/bundle.js"></script>
+    {{end}}
+    {{if (eq .Env "production")}}    
+    <script src="/assets/js/bundle-prod.js"></script>
+    {{end}}
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "go-code-together",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "socket.io-client": "^2.0.3",
+    "uglify-js": "^3.0.27"
+  },
+  "scripts": {
+    "compile-prod": "./node_modules/browserify/bin/cmd.js src/index.js -o assets/js/bundle.js -t babelify && uglifyjs assets/js/bundle.js -o assets/js/bundle-prod.js",
+    "compile": "./node_modules/browserify/bin/cmd.js src/index.js -o assets/js/bundle.js -t babelify",
+    "test": "nodemon --exec 'npm run test-client' *.go",
+    "test-client": "nodemon --exec 'npm run compile && npm start' src/*.js --ignore assets/js/bundle.js",
+    "start": "go build && ./server",
+    "postinstall": "npm run compile-prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dyang108/go-code-together.git"
+  },
+  "author": "dyang108",
+  "license": "ISC",
+  "engines": {
+    "node": "6.10.2"
+  }
+}
