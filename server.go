@@ -42,6 +42,7 @@ func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
             Env: os.Getenv("NODE_ENV"),
             Count: result.Count,
         }
+        w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
         t, _ := template.ParseFiles("editor.html")
         t.Execute(w, tmplVars)
     }
@@ -97,6 +98,16 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)
 }
 
+func redirect(w http.ResponseWriter, req *http.Request) {
+    // remove/add not default ports from req.Host
+    target := os.Getenv("PROTOCOL") + req.Host + req.URL.Path 
+    if len(req.URL.RawQuery) > 0 {
+        target += "?" + req.URL.RawQuery
+    }
+    log.Printf("redirect to: %s", target)
+    http.Redirect(w, req, target, http.StatusTemporaryRedirect)
+}
+
 func main() {
     io, err := socketio.NewServer(nil)
     if err != nil {
@@ -118,5 +129,9 @@ func main() {
     http.HandleFunc("/", index)
     http.HandleFunc("/create-room", createRoom)
     log.Println("Starting server on port " + os.Getenv("PORT"))
-    http.ListenAndServe(":" + os.Getenv("PORT"), nil)
+    if os.Getenv("NODE_ENV") == "production" {
+        http.ListenAndServe(":" + os.Getenv("PORT"), http.HandlerFunc(redirect))
+    } else {
+        http.ListenAndServe(":" + os.Getenv("PORT"), nil)
+    }
 }

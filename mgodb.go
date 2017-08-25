@@ -7,7 +7,7 @@ import (
 
 var session, _ = mgo.Dial(os.Getenv("MONGODB_URI"))
 
-var Db = session.DB(os.Getenv("DB_NAME"))
+var Db = session.DB("")
 var Rooms = Db.C("rooms")
 
 type Room struct {
