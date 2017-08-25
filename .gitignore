@@ -8,3 +8,4 @@ assets/js/index-bundle-prod.js
 *bundle.js.tmp-browserify*
 go-code-together
 secret.sh
+vendor/
