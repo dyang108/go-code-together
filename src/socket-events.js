@@ -7,14 +7,14 @@ socket.on(EventTypes.Connection, () => {
   socket.emit(EventTypes.SubscribeToRoom, editor.getRoomId())
 })
 
-socket.on(EventTypes.UserEdit, function (edit) {
+socket.on(EventTypes.UserEdit, edit => {
   editor.serverEdit(edit)
 })
 
-socket.on(EventTypes.LanguageChange, function (change) {
+socket.on(EventTypes.LanguageChange, change => {
   editor.setSyntax(change)
 })
 
-socket.on(EventTypes.UserCountChange, function (change) {
+socket.on(EventTypes.UserCountChange, change => {
   changeUserCount(change)
 })

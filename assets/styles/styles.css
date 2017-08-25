@@ -1,8 +1,8 @@
 body {
-    overflow: hidden;
+    overflow: scroll;
     margin: 0;
     padding: 0;
-    background-color: #2f3129;
+    background-color: #fff;
 }
 
 #editor {
@@ -28,7 +28,11 @@ body {
 }
 
 .glyphicon {
-    color: #eee;
+    color: #fff;
+}
+
+.logo {
+    font-size: 7em;
 }
 
 .select-pref {
@@ -52,14 +56,35 @@ body {
 }
 
 .main-panel {
-    margin-top: 30vh;
+    margin-top: 80px;
+    margin-bottom: 80px;
     background-color: rgba(20, 20, 20, .9);
-    color: #ccc;
+    color: #ddd;
 }
 
 .main-bg {
     background-image: url('./bg-code.jpg');
     background-repeat: no-repeat;
     background-size: cover;
-    height: 100vh;
+}
+
+.sub-panel {
+    height: 20em;
+    padding-top: 3em;
+}
+
+.bg-1 {
+    color: #fcab6c;
+}
+
+.bg-2 {
+    color: #aea4c9;
+}
+
+.bg-3 {
+    color: #90add9;
+}
+
+.footer {
+    margin-bottom: 30px;
 }

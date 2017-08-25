@@ -8,7 +8,10 @@ export var languages = [{
   name: 'Java',
   src: 'ace/mode/java'
 }, {
-  name: 'C/C++',
+  name: 'C',
+  src: 'ace/mode/c_cpp'
+}, {
+  name: 'C++',
   src: 'ace/mode/c_cpp'
 }, {
   name: 'C#',
@@ -79,5 +82,6 @@ export var EventTypes = {
   EditorChange: 'change',
   TextInsertion: 'insert',
   TextRemoval: 'remove',
-  UserCountChange: 'countchange'
+  UserCountChange: 'countchange',
+  TypeRoomName: 'roomnameedit'
 }

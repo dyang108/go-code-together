@@ -8,6 +8,7 @@ import (
     "gopkg.in/mgo.v2"
     "gopkg.in/mgo.v2/bson"
     "github.com/googollee/go-socket.io"
+    "os"
 )
 
 type EditorTmpl struct {
@@ -18,12 +19,18 @@ type EditorTmpl struct {
     Count int
 }
 
+type IndexTmpl struct {
+    BaseUrl string
+    Env string
+    Socket string
+}
+
 func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
     var result Room
     err := Rooms.Find(bson.M{"roomid": path}).One(&result)
     if err != nil {
         if err.Error() == "not found" {
-            http.Redirect(w, r, "http://localhost:8000/", 301)
+            http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
         } else {
             http.Error(w, "Error occurred when querying database", 501)
         }
@@ -31,9 +38,9 @@ func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
     } else {
         tmplVars := EditorTmpl{
             Mode: result.Mode,
-            Socket: "ws://localhost:8000/",
+            Socket: os.Getenv("SOCKET_URL"),
             Text: result.Text,
-            Env: "dev",
+            Env: os.Getenv("ENV"),
             Count: result.Count,
         }
         t, _ := template.ParseFiles("editor.html")
@@ -46,22 +53,27 @@ func index(w http.ResponseWriter, r *http.Request) {
         displayEditor(w, r, path)
         return
     }
+    tmplVars := IndexTmpl{
+        Socket: os.Getenv("SOCKET_URL"),
+        Env: os.Getenv("ENV"),
+        BaseUrl: os.Getenv("BASE_URL"),
+    }
     t, _ := template.ParseFiles("index.html")
-    t.Execute(w, "http://localhost:8000/")
+    t.Execute(w, tmplVars)
 }
 
 func createRoom(w http.ResponseWriter, r *http.Request) {
     // check if correct method
     if r.Method != "POST" {
-        http.Error(w, "Invalid request method.", 405)
+        index(w, r)
         return
     }
 
     // need to parse the form in order to get data
     r.ParseForm()
     roomId := strings.Join(r.Form["roomId"], "")
-    if strings.Contains(roomId, " ") {
-        http.Redirect(w, r, "http://localhost:8000/", 301)
+    if strings.Contains(roomId, " ") || roomId == "about" {
+        http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
         return
     }
 
@@ -83,7 +95,7 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
             http.Error(w, "Error occurred when querying database", 501)
         }
     }
-    http.Redirect(w, r, "http://localhost:8000/" + roomId, 301)
+    http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)
 }
 
 func main() {
@@ -91,7 +103,6 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-
     io.On("connection", SocketDef)
     http.Handle("/socket.io/", io)
 
@@ -107,6 +118,6 @@ func main() {
 
     http.HandleFunc("/", index)
     http.HandleFunc("/create-room", createRoom)
-    log.Println("Starting server on port 8000")
-    http.ListenAndServe(":8000", nil)
+    log.Println("Starting server on port " + os.Getenv("PORT"))
+    http.ListenAndServe(":" + os.Getenv("PORT"), nil)
 }

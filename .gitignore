@@ -3,5 +3,8 @@ node_modules/
 npm-debug.log
 assets/js/bundle.js
 assets/js/bundle-prod.js
+assets/js/index-bundle.js
+assets/js/index-bundle-prod.js
 *bundle.js.tmp-browserify*
 go-code-together
+secret.sh

@@ -26,11 +26,13 @@ Now install node modules:
 ## Run
 ### Development
 (will watch server and client files, not sure if the reload is perfect for server)
-
+    
+    mongod
     npm test
 
 ### Prod
-
+    
+    mongod
     npm start
     
 ## Next steps

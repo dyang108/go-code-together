@@ -11,11 +11,11 @@
     "uglify-js": "^3.0.27"
   },
   "scripts": {
-    "compile-prod": "./node_modules/browserify/bin/cmd.js src/index.js -o assets/js/bundle.js -t babelify && uglifyjs assets/js/bundle.js -o assets/js/bundle-prod.js",
-    "compile": "./node_modules/browserify/bin/cmd.js src/index.js -o assets/js/bundle.js -t babelify",
+    "compile-prod": "./node_modules/browserify/bin/cmd.js src/index.js -o assets/js/bundle.js -t babelify && uglifyjs assets/js/bundle.js -o assets/js/bundle-prod.js && ./node_modules/browserify/bin/cmd.js src/index-socket.js -o assets/js/index-bundle.js -t babelify && uglifyjs assets/js/index-bundle.js -o assets/js/index-bundle-prod.js",
+    "compile": "./node_modules/browserify/bin/cmd.js src/index.js -o assets/js/bundle.js -t babelify && ./node_modules/browserify/bin/cmd.js ./src/index-socket.js -o ./assets/js/index-bundle.js -t babelify",
     "test": "nodemon --exec 'npm run test-client' *.go",
-    "test-client": "nodemon --exec 'npm run compile && npm start' src/*.js --ignore assets/js/bundle.js",
-    "start": "go build && ./go-code-together",
+    "test-client": "nodemon --exec 'npm run compile && npm start' ./src/ --ignore assets/js/",
+    "start": "source secret.sh && go build && ./go-code-together",
     "postinstall": "npm run compile-prod"
   },
   "repository": {

@@ -2,11 +2,12 @@ package main
 
 import (
     "gopkg.in/mgo.v2"
+    "os"
 )
 
-var session, _ = mgo.Dial("mongodb://localhost:27017/")
+var session, _ = mgo.Dial(os.Getenv("MONGODB_URL"))
 
-var Db = session.DB("webcoder")
+var Db = session.DB(os.Getenv("DB_NAME"))
 var Rooms = Db.C("rooms")
 
 type Room struct {

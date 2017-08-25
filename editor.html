@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <title>WebCoder</title>
+    <title>Go-Code-Together</title>
     <link rel="stylesheet" type="text/css" href="/assets/styles/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/assets/styles/styles.css">
 </head>
@@ -30,7 +30,7 @@
         <pre id="editor">{{.Text}}</pre>
     </div>
     <script src="/assets/js/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    {{if (eq .Env "dev")}}
+    {{if (eq .Env "development")}}
     <script src="/assets/js/bundle.js"></script>
     {{end}}
     {{if (eq .Env "production")}}    

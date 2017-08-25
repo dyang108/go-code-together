@@ -103,11 +103,28 @@ func handleSyntaxChangeEvent (so socketio.Socket) socketHandlerFunc {
     }
 }
 
+type socketHandlerFuncWithAck func (msg string) int
+
+func handleRoomNameEditEvent (so socketio.Socket) socketHandlerFuncWithAck {
+    return func (roomId string) int {
+        var result Room
+        q := bson.M{"roomid": roomId}
+        err := Rooms.Find(q).One(&result)
+        if err != nil {
+            return 0
+        } else {
+            return result.Count
+        }
+    }
+}
+
 func SocketDef (so socketio.Socket) {
     so.On("room", handleRoomEvent(so))
 
     so.On("edit", handleEditEvent(so))
 
     so.On("syntax", handleSyntaxChangeEvent(so))
+
+    so.On("roomnameedit", handleRoomNameEditEvent(so))
 }
 
