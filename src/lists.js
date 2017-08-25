@@ -76,12 +76,15 @@ export var keybindings = [{
 
 export var EventTypes = {
   UserEdit: 'edit',
-  LanguageChange: 'syntax',
+  LanguageChange: 'syntaxChange',
   SubscribeToRoom: 'room',
   Connection: 'connect',
   EditorChange: 'change',
   TextInsertion: 'insert',
   TextRemoval: 'remove',
-  UserCountChange: 'countchange',
-  TypeRoomName: 'roomnameedit'
+  UserCountChange: 'countChange',
+  TypeRoomName: 'roomNameEdit',
+  ChangeCursor: 'changeCursor',
+  ChangeSelection: 'changeSelection',
+  OtherUserDisconnect: 'otherUserDisconnect'
 }

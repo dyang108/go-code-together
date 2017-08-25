@@ -19,7 +19,7 @@ func handleDisconnectionEvent (so socketio.Socket, roomId string) socketHandlerF
             return
         }
 
-        so.BroadcastTo(roomId, "countchange", "-1")
+        so.BroadcastTo(roomId, "otherUserDisconnect", so.Id())
 
         var result Room
         err := Rooms.Find(q).One(&result)
@@ -42,6 +42,8 @@ func handleDisconnectionEvent (so socketio.Socket, roomId string) socketHandlerF
 func handleRoomEvent (so socketio.Socket) socketHandlerFunc {
     return func (roomId string) {
         so.Join(roomId)
+        go so.BroadcastTo(roomId, "countChange", "1")
+        go so.Emit("countChange", "1")
         q := bson.M{"roomid": roomId}
         up := bson.M{"$inc": bson.M{"count": 1}}
 
@@ -49,8 +51,6 @@ func handleRoomEvent (so socketio.Socket) socketHandlerFunc {
             log.Println(err.Error())
             return 
         }
-        so.BroadcastTo(roomId, "countchange", "1")
-        so.Emit("countchange", "1")
 
         so.On("disconnection", handleDisconnectionEvent(so, roomId))
     }
@@ -64,6 +64,8 @@ func handleEditEvent (so socketio.Socket) socketHandlerFunc {
         }
         m := f.(map[string]interface{})
         roomId := m["roomId"].(string)
+        // broadcast changes to necessary clients
+        go so.BroadcastTo(roomId, "edit", change)
 
         // save the change to the database
         text := m["text"].(string)
@@ -74,9 +76,6 @@ func handleEditEvent (so socketio.Socket) socketHandlerFunc {
             log.Println(err.Error())
             return
         }
-
-        // broadcast changes to necessary clients
-        so.BroadcastTo(roomId, "edit", change)
     }
 }
 
@@ -88,6 +87,7 @@ func handleSyntaxChangeEvent (so socketio.Socket) socketHandlerFunc {
         }
         m := f.(map[string]interface{})
         roomId := m["roomId"].(string)
+        go so.BroadcastTo(roomId, "syntaxChange", change)
 
         // save the change to the database
         mode := m["mode"].(string)
@@ -98,8 +98,18 @@ func handleSyntaxChangeEvent (so socketio.Socket) socketHandlerFunc {
             log.Println(err.Error())
             return
         }
+    }
+}
 
-        so.BroadcastTo(roomId, "syntax", change)
+func handleCursorChangeEvent (so socketio.Socket) socketHandlerFunc {
+    return func (change string) {
+        so.BroadcastTo(so.Rooms()[0], "changeCursor", change)
+    }
+}
+
+func handleSelectionChangeEvent (so socketio.Socket) socketHandlerFunc {
+    return func (change string) {
+        so.BroadcastTo(so.Rooms()[0], "changeSelection", change)
     }
 }
 
@@ -120,11 +130,10 @@ func handleRoomNameEditEvent (so socketio.Socket) socketHandlerFuncWithAck {
 
 func SocketDef (so socketio.Socket) {
     so.On("room", handleRoomEvent(so))
-
     so.On("edit", handleEditEvent(so))
-
-    so.On("syntax", handleSyntaxChangeEvent(so))
-
-    so.On("roomnameedit", handleRoomNameEditEvent(so))
+    so.On("syntaxChange", handleSyntaxChangeEvent(so))
+    so.On("changeSelection", handleSelectionChangeEvent(so))
+    so.On("changeCursor", handleCursorChangeEvent(so))
+    so.On("roomNameEdit", handleRoomNameEditEvent(so))
 }
 

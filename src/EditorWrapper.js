@@ -1,6 +1,6 @@
 import { languages, EventTypes } from './lists'
 import socket from './client-socket'
-
+import SelectionManager from './SelectionManager'
 var langSelect = document.getElementById('language-select')
 
 class EditorWrapper {
@@ -9,13 +9,17 @@ class EditorWrapper {
     this.editor.setTheme('ace/theme/monokai')
     this.editor.session.setUseWorker(false)
     this.editor.session.setMode(mode)
-
+    this.editor.$blockScrolling = Infinity
+    this.editor.getSession().setUseWrapMode(true)
     let splitUrl = document.location.href.split('/')
     this.roomId = splitUrl[splitUrl.length - 1]
     this.isChanging = false
+
     this.editor.session.on(EventTypes.EditorChange, function (e) {
       this.userEdit(e)
     }.bind(this))
+
+    this.selectionManager = new SelectionManager(this.editor)
   }
 
   setMode (newMode) {
@@ -32,6 +36,18 @@ class EditorWrapper {
         mode: newMode
       }))
     }
+  }
+
+  serverChangeSelection (msg) {
+    this.selectionManager.selectionChanged(msg)
+  }
+
+  serverChangeCursor (msg) {
+    this.selectionManager.cursorChanged(msg)
+  }
+
+  removeOtherUser (clientId) {
+    this.selectionManager.removeOtherUser(clientId)
   }
 
   setKeyboardHandler (kh) {
@@ -54,8 +70,7 @@ class EditorWrapper {
 
   serverEdit (data) {
     this.isChanging = true
-    let edit = JSON.parse(data)
-    let change = edit.change
+    let change = data.change
     switch (change.action) {
       case EventTypes.TextInsertion:
         this.editor.session.insert(change.start, change.lines.join('\n'))
@@ -67,12 +82,11 @@ class EditorWrapper {
   }
 
   setSyntax (data) {
-    let edit = JSON.parse(data)
     this.isChanging = true
-    this.setMode(edit.mode)
+    this.setMode(data.mode)
     this.isChanging = false
   }
 }
 
-var editor = new EditorWrapper(mode)
-export default editor
+var Editor = new EditorWrapper(mode)
+export default Editor

@@ -1,20 +1,33 @@
 import socket from './client-socket'
-import editor from './editor'
+import Editor from './EditorWrapper'
 import { EventTypes } from './lists'
 import { changeUserCount } from './init-dom'
 
 socket.on(EventTypes.Connection, () => {
-  socket.emit(EventTypes.SubscribeToRoom, editor.getRoomId())
+  socket.emit(EventTypes.SubscribeToRoom, Editor.getRoomId())
 })
 
 socket.on(EventTypes.UserEdit, edit => {
-  editor.serverEdit(edit)
+  Editor.serverEdit(JSON.parse(edit))
 })
 
 socket.on(EventTypes.LanguageChange, change => {
-  editor.setSyntax(change)
+  Editor.setSyntax(JSON.parse(change))
 })
 
 socket.on(EventTypes.UserCountChange, change => {
-  changeUserCount(change)
+  changeUserCount(parseInt(change))
+})
+
+socket.on(EventTypes.ChangeSelection, msg => {
+  Editor.serverChangeSelection(JSON.parse(msg))
+})
+
+socket.on(EventTypes.ChangeCursor, msg => {
+  Editor.serverChangeCursor(JSON.parse(msg))
+})
+
+socket.on(EventTypes.OtherUserDisconnect, change => {
+  changeUserCount(-1)
+  Editor.removeOtherUser(change)
 })

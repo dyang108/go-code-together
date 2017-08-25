@@ -1,4 +1,4 @@
-import editor from './editor'
+import Editor from './EditorWrapper'
 import { languages, keybindings } from './lists'
 
 var langSelect = document.getElementById('language-select')
@@ -13,7 +13,7 @@ function populateLanguages () {
     langSelect.appendChild(opt)
   })
   if (mode) {
-    editor.setMode(mode)
+    Editor.setMode(mode)
   }
 }
 
@@ -28,13 +28,13 @@ function populateKeyBindings () {
 
 export function changeUserCount (change) {
   let currCount = parseInt(userCount.innerHTML)
-  currCount += parseInt(change)
+  currCount += change
   userCount.innerHTML = currCount
 }
 
 langSelect.onchange = function () {
   var selectedMode = langSelect.options[langSelect.selectedIndex].value
-  editor.changeHighlighting(selectedMode)
+  Editor.changeHighlighting(selectedMode)
 }
 
 keybindingSelect.onchange = function () {
@@ -42,7 +42,7 @@ keybindingSelect.onchange = function () {
   if (selectedKeybinding === 'ace') {
     selectedKeybinding = undefined
   }
-  editor.setKeyboardHandler(selectedKeybinding)
+  Editor.setKeyboardHandler(selectedKeybinding)
 }
 
 populateLanguages()
