@@ -98,19 +98,8 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)
 }
 
-// func redirect(w http.ResponseWriter, req *http.Request) {
-//     // remove/add not default ports from req.Host
-//     target := "https://" + req.Host + req.URL.Path 
-//     if len(req.URL.RawQuery) > 0 {
-//         target += "?" + req.URL.RawQuery
-//     }
-//     log.Printf("redirect to: %s", target)
-//     http.Redirect(w, req, target, http.StatusTemporaryRedirect)
-// }
-
 func redirectTLS(w http.ResponseWriter, r *http.Request) {
-    log.Println("redirecting")
-    http.Redirect(w, r, os.Getenv("BASE_URL") + r.RequestURI, http.StatusMovedPermanently)
+    http.Redirect(w, r, os.Getenv("BASE_URL") + ":443" + r.RequestURI, http.StatusMovedPermanently)
 }
 
 func main() {
@@ -135,9 +124,11 @@ func main() {
     http.HandleFunc("/create-room", createRoom)
 
     if os.Getenv("NODE_ENV") == "production" {
-        go http.ListenAndServeTLS(":443", "tls/cert.pem", "tls/key.pem", nil)
-        log.Println("Starting server on port " + os.Getenv("PORT"))
-        http.ListenAndServe(":" + os.Getenv("PORT"), http.HandlerFunc(redirectTLS))
+        go func() {
+            if err := http.ListenAndServe(":" + os.Getenv("PORT"), http.HandlerFunc(redirectTLS)); err != nil {
+                log.Fatalf("ListenAndServe error: %v", err)
+            }
+        }()
     } else {
         log.Println("Starting server on port " + os.Getenv("PORT"))
         http.ListenAndServe(":" + os.Getenv("PORT"), nil)
