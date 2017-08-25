@@ -31,7 +31,7 @@ func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
         if err.Error() == "not found" {
             http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
         } else {
-            http.Error(w, "Error occurred when querying database", 501)
+            http.Error(w, "Error occurred when querying database " + err.Error(), 501)
         }
         return
     } else {
@@ -86,10 +86,12 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
                 Count: 0,
             }
             if err := Rooms.Insert(&newSt); err != nil {
-                http.Error(w, "Error occurred when inserting in database", 501)
+                http.Error(w, "Error occurred when inserting in database " + err.Error(), 501)
+                return
             }
-         } else {
-            http.Error(w, "Error occurred when querying database", 501)
+        } else {
+            http.Error(w, "Error occurred when querying database " + err.Error(), 501)
+            return
         }
     }
     http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)

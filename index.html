@@ -17,12 +17,12 @@
             <label>Create a room link to start collaborating.</label>
             <hr>
             <form class="form-horizontal" action="/create-room" method="POST">
-                <div class="input-group input-group-lg"><span class="input-group-addon">{{printf "%s" .BaseUrl}}</span>
+                <div class="input-group"><span class="input-group-addon">{{printf "%s" .BaseUrl}}</span>
                     <input class="form-control" type="text" name="roomId" id="roomId" autocomplete="off">
                 </div>
                 <h5 class="text-warning" id="countWarning" style="height: 1em"></h5>
                 <div class="input-group center-block">
-                <button disabled id="roomBtn" class="btn btn-block btn-primary btn-lg">Create room</button>
+                <button disabled id="roomBtn" class="btn btn-block btn-primary">Create room</button>
                 </div>
             </form>
         </div>
