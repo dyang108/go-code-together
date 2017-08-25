@@ -98,10 +98,6 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
     http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)
 }
 
-func redirectTLS(w http.ResponseWriter, r *http.Request) {
-    http.Redirect(w, r, os.Getenv("BASE_URL") + ":443" + r.RequestURI, http.StatusMovedPermanently)
-}
-
 func main() {
     io, err := socketio.NewServer(nil)
     if err != nil {
@@ -123,14 +119,6 @@ func main() {
     http.HandleFunc("/", index)
     http.HandleFunc("/create-room", createRoom)
 
-    if os.Getenv("NODE_ENV") == "production" {
-        go func() {
-            if err := http.ListenAndServe(":" + os.Getenv("PORT"), http.HandlerFunc(redirectTLS)); err != nil {
-                log.Fatalf("ListenAndServe error: %v", err)
-            }
-        }()
-    } else {
-        log.Println("Starting server on port " + os.Getenv("PORT"))
-        http.ListenAndServe(":" + os.Getenv("PORT"), nil)
-    }
+    log.Println("Starting server on port " + os.Getenv("PORT"))
+    http.ListenAndServe(":" + os.Getenv("PORT"), nil)
 }
