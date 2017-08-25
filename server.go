@@ -100,7 +100,7 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
 
 func redirect(w http.ResponseWriter, req *http.Request) {
     // remove/add not default ports from req.Host
-    target := os.Getenv("PROTOCOL") + req.Host + req.URL.Path 
+    target := "https://" + req.Host + req.URL.Path 
     if len(req.URL.RawQuery) > 0 {
         target += "?" + req.URL.RawQuery
     }
