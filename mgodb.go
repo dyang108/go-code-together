@@ -5,7 +5,7 @@ import (
     "os"
 )
 
-var session, _ = mgo.Dial(os.Getenv("MONGODB_URL"))
+var session, _ = mgo.Dial(os.Getenv("MONGODB_URI"))
 
 var Db = session.DB(os.Getenv("DB_NAME"))
 var Rooms = Db.C("rooms")

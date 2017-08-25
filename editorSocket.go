@@ -22,8 +22,7 @@ func handleDisconnectionEvent (so socketio.Socket, roomId string) socketHandlerF
         so.BroadcastTo(roomId, "otherUserDisconnect", so.Id())
 
         var result Room
-        err := Rooms.Find(q).One(&result)
-        if err != nil {
+        if err := Rooms.Find(q).One(&result); err != nil {
             log.Println(err.Error())
             return
         }
@@ -71,8 +70,7 @@ func handleEditEvent (so socketio.Socket) socketHandlerFunc {
         text := m["text"].(string)
         q := bson.M{"roomid": roomId}
         up := bson.M{"$set": bson.M{"text": text}}
-        err := Rooms.Update(q, up)
-        if err != nil {
+        if err := Rooms.Update(q, up); err != nil {
             log.Println(err.Error())
             return
         }
@@ -93,8 +91,7 @@ func handleSyntaxChangeEvent (so socketio.Socket) socketHandlerFunc {
         mode := m["mode"].(string)
         q := bson.M{"roomid": roomId}
         up := bson.M{"$set": bson.M{"mode": mode}}
-        err := Rooms.Update(q, up)
-        if err != nil {
+        if err := Rooms.Update(q, up); err != nil {
             log.Println(err.Error())
             return
         }
@@ -119,8 +116,7 @@ func handleRoomNameEditEvent (so socketio.Socket) socketHandlerFuncWithAck {
     return func (roomId string) int {
         var result Room
         q := bson.M{"roomid": roomId}
-        err := Rooms.Find(q).One(&result)
-        if err != nil {
+        if err := Rooms.Find(q).One(&result); err != nil {
             return 0
         } else {
             return result.Count
@@ -136,4 +132,3 @@ func SocketDef (so socketio.Socket) {
     so.On("changeCursor", handleCursorChangeEvent(so))
     so.On("roomNameEdit", handleRoomNameEditEvent(so))
 }
-

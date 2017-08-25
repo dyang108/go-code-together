@@ -27,8 +27,7 @@ type IndexTmpl struct {
 
 func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
     var result Room
-    err := Rooms.Find(bson.M{"roomid": path}).One(&result)
-    if err != nil {
+    if err := Rooms.Find(bson.M{"roomid": path}).One(&result); err != nil {
         if err.Error() == "not found" {
             http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
         } else {
@@ -40,7 +39,7 @@ func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
             Mode: result.Mode,
             Socket: os.Getenv("SOCKET_URL"),
             Text: result.Text,
-            Env: os.Getenv("ENV"),
+            Env: os.Getenv("NODE_ENV"),
             Count: result.Count,
         }
         t, _ := template.ParseFiles("editor.html")
@@ -55,7 +54,7 @@ func index(w http.ResponseWriter, r *http.Request) {
     }
     tmplVars := IndexTmpl{
         Socket: os.Getenv("SOCKET_URL"),
-        Env: os.Getenv("ENV"),
+        Env: os.Getenv("NODE_ENV"),
         BaseUrl: os.Getenv("BASE_URL"),
     }
     t, _ := template.ParseFiles("index.html")
@@ -78,8 +77,7 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
     }
 
     var result Room
-    err := Rooms.Find(bson.M{"roomid": roomId}).One(&result)
-    if err != nil {
+    if err := Rooms.Find(bson.M{"roomid": roomId}).One(&result); err != nil {
         if err.Error() == "not found" {
             newSt := Room{
                 RoomId: roomId,
@@ -87,8 +85,7 @@ func createRoom(w http.ResponseWriter, r *http.Request) {
                 Mode: "ace/mode/javascript",
                 Count: 0,
             }
-            err := Rooms.Insert(&newSt)
-            if err != nil {
+            if err := Rooms.Insert(&newSt); err != nil {
                 http.Error(w, "Error occurred when inserting in database", 501)
             }
          } else {
