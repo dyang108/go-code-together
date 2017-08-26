@@ -7,7 +7,6 @@ import (
     "strings"
     "gopkg.in/mgo.v2"
     "gopkg.in/mgo.v2/bson"
-    "github.com/googollee/go-socket.io"
     "os"
 )
 
@@ -27,6 +26,7 @@ type IndexTmpl struct {
 
 func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
     var result Room
+    // TODO: block until channel is empty
     if err := Rooms.Find(bson.M{"roomid": path}).One(&result); err != nil {
         if err.Error() == "not found" {
             http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
@@ -62,49 +62,56 @@ func index(w http.ResponseWriter, r *http.Request) {
     t.Execute(w, tmplVars)
 }
 
-func createRoom(w http.ResponseWriter, r *http.Request) {
-    // check if correct method
-    if r.Method != "POST" {
-        index(w, r)
-        return
-    }
-
-    // need to parse the form in order to get data
-    r.ParseForm()
-    roomId := strings.Join(r.Form["roomId"], "")
-    if strings.Contains(roomId, " ") || roomId == "about" {
-        http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
-        return
-    }
-
-    var result Room
-    if err := Rooms.Find(bson.M{"roomid": roomId}).One(&result); err != nil {
-        if err.Error() == "not found" {
-            newSt := Room{
-                RoomId: roomId,
-                Text: "// type code here",
-                Mode: "ace/mode/javascript",
-                Count: 0,
-            }
-            if err := Rooms.Insert(&newSt); err != nil {
-                http.Error(w, "Error occurred when inserting in database " + err.Error(), 501)
-                return
-            }
-        } else {
-            http.Error(w, "Error occurred when querying database " + err.Error(), 501)
+func createRoom (roomChannels *map[string]chan bson.M) http.HandlerFunc {
+    return func (w http.ResponseWriter, r *http.Request) {
+        // check if correct method
+        if r.Method != "POST" {
             return
         }
+
+        // need to parse the form in order to get data
+        r.ParseForm()
+        roomId := strings.Join(r.Form["roomId"], "")
+        if strings.Contains(roomId, " ") || roomId == "about" {
+            http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
+            return
+        }
+
+        // initialize the channel for the room
+        (*roomChannels)[roomId] = make(chan bson.M)
+        go DigestEvents((*roomChannels)[roomId], roomId)
+
+        var result Room
+        if err := Rooms.Find(bson.M{"roomid": roomId}).One(&result); err != nil {
+            if err.Error() == "not found" {
+                newSt := Room{
+                    RoomId: roomId,
+                    Text: "// type code here",
+                    Mode: "ace/mode/javascript",
+                    Count: 0,
+                }
+                if err := Rooms.Insert(&newSt); err != nil {
+                    http.Error(w, "Error occurred when inserting in database " + err.Error(), 501)
+                    return
+                }
+            } else {
+                http.Error(w, "Error occurred when querying database " + err.Error(), 501)
+                return
+            }
+        }
+        http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)
     }
-    http.Redirect(w, r, os.Getenv("BASE_URL") + roomId, 301)
 }
 
 func main() {
-    io, err := socketio.NewServer(nil)
-    if err != nil {
-        log.Fatal(err)
-    }
-    io.On("connection", SocketDef)
-    http.Handle("/socket.io/", io)
+    roomChannels := make(map[string]chan bson.M)
+
+    io := InitSocket(&roomChannels)
+    http.HandleFunc("/socket.io/", func (w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Credentials", "true")
+        io.ServeHTTP(w, r)
+    })
 
     Rooms.EnsureIndex(mgo.Index{
         Key: []string{"roomid"},
@@ -117,7 +124,7 @@ func main() {
     http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
     http.HandleFunc("/", index)
-    http.HandleFunc("/create-room", createRoom)
+    http.HandleFunc("/create-room", createRoom(&roomChannels))
 
     log.Println("Starting server on port " + os.Getenv("PORT"))
     http.ListenAndServe(":" + os.Getenv("PORT"), nil)
