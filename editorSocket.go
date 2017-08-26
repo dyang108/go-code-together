@@ -15,9 +15,9 @@ func handleDisconnectionEvent (so socketio.Socket, roomChannel chan bson.M, room
     return func (reason string) {
         so.BroadcastTo(roomId, "otherUserDisconnect", so.Id())
 
-        // send message to update db
-        roomChannel <- bson.M{"$inc": bson.M{"count": -1}}
         go func () {
+            // send message to update db
+            roomChannel <- bson.M{"$inc": bson.M{"count": -1}}
             q := bson.M{"roomid": roomId}
             var result Room
             if err := Rooms.Find(q).One(&result); err != nil {
@@ -113,7 +113,9 @@ func InitSocket (roomChannels *map[string]chan bson.M) *socketio.Server {
                 go DigestEvents((*roomChannels)[roomId], roomId)
             }
             roomChannel := (*roomChannels)[roomId]
-            roomChannel <- bson.M{"$inc": bson.M{"count": 1}}
+            go func () {
+                roomChannel <- bson.M{"$inc": bson.M{"count": 1}}
+            }()
             so.On("disconnection", handleDisconnectionEvent(so, roomChannel, roomId))
             so.On("edit", handleEditEvent(so,roomChannel, roomId))
             so.On("syntaxChange", handleSyntaxChangeEvent(so, roomChannel, roomId))
