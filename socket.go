@@ -13,11 +13,10 @@ type socketHandlerFuncWithAck func (msg string) int
 
 func handleDisconnectionEvent (so socketio.Socket, roomChannel chan bson.M, roomId string) socketHandlerFunc {
     return func (reason string) {
-        so.BroadcastTo(roomId, "otherUserDisconnect", so.Id())
-
         go func () {
             // send message to update db
             roomChannel <- bson.M{"$inc": bson.M{"count": -1}}
+            so.BroadcastTo(roomId, "otherUserDisconnect", so.Id())
             q := bson.M{"roomid": roomId}
             var result Room
             if err := Rooms.Find(q).One(&result); err != nil {
@@ -86,7 +85,7 @@ func handleSelectionChangeEvent (so socketio.Socket) socketHandlerFunc {
     }
 }
 
-func handleRoomNameEditEvent (so socketio.Socket) socketHandlerFuncWithAck {
+func handleGetRoomCountEvent (so socketio.Socket) socketHandlerFuncWithAck {
     return func (roomId string) int {
         var result Room
         q := bson.M{"roomid": roomId}
@@ -105,8 +104,6 @@ func InitSocket (roomChannels *map[string]chan bson.M) *socketio.Server {
     }
     io.On("connection", func (so socketio.Socket) {
         so.On("room", func (roomId string) {
-            so.BroadcastTo(roomId, "countChange", "1")
-            so.Emit("countChange", "1")
             so.Join(roomId)
             if _, ok := (*roomChannels)[roomId]; !ok {
                 (*roomChannels)[roomId] = make (chan bson.M)
@@ -115,6 +112,8 @@ func InitSocket (roomChannels *map[string]chan bson.M) *socketio.Server {
             roomChannel := (*roomChannels)[roomId]
             go func () {
                 roomChannel <- bson.M{"$inc": bson.M{"count": 1}}
+                so.BroadcastTo(roomId, "countChange", "1")
+                so.Emit("countChange", "check")
             }()
             so.On("disconnection", handleDisconnectionEvent(so, roomChannel, roomId))
             so.On("edit", handleEditEvent(so,roomChannel, roomId))
@@ -122,7 +121,7 @@ func InitSocket (roomChannels *map[string]chan bson.M) *socketio.Server {
         })
         so.On("changeSelection", handleSelectionChangeEvent(so))
         so.On("changeCursor", handleCursorChangeEvent(so))
-        so.On("roomNameEdit", handleRoomNameEditEvent(so))
+        so.On("getRoomCount", handleGetRoomCountEvent(so))
     })
     return io
 }
@@ -135,13 +134,9 @@ func DigestEvents (roomChannel chan bson.M, roomId string) {
     for {
         select {
         case up := <- roomChannel:
-            go func () {
-                // isBusy = true
-                if err := Rooms.Update(q, up); err != nil {
-                    log.Println(err.Error())
-                }
-                // isBusy = false
-            }()
+            if err := Rooms.Update(q, up); err != nil {
+                log.Println(err.Error())
+            }
         }
     }
 }

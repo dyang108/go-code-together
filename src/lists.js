@@ -83,7 +83,7 @@ export var EventTypes = {
   TextInsertion: 'insert',
   TextRemoval: 'remove',
   UserCountChange: 'countChange',
-  TypeRoomName: 'roomNameEdit',
+  GetRoomCount: 'getRoomCount',
   ChangeCursor: 'changeCursor',
   ChangeSelection: 'changeSelection',
   OtherUserDisconnect: 'otherUserDisconnect'

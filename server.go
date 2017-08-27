@@ -77,9 +77,6 @@ func createRoom (roomChannels *map[string]chan bson.M) http.HandlerFunc {
             return
         }
 
-        // initialize the channel for the room
-        (*roomChannels)[roomId] = make(chan bson.M)
-        go DigestEvents((*roomChannels)[roomId], roomId)
 
         var result Room
         if err := Rooms.Find(bson.M{"roomid": roomId}).One(&result); err != nil {
@@ -94,6 +91,9 @@ func createRoom (roomChannels *map[string]chan bson.M) http.HandlerFunc {
                     http.Error(w, "Error occurred when inserting in database " + err.Error(), 501)
                     return
                 }
+                // initialize the channel for the room
+                (*roomChannels)[roomId] = make(chan bson.M)
+                go DigestEvents((*roomChannels)[roomId], roomId)
             } else {
                 http.Error(w, "Error occurred when querying database " + err.Error(), 501)
                 return

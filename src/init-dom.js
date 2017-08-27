@@ -29,7 +29,11 @@ function populateKeyBindings () {
 export function changeUserCount (change) {
   let currCount = parseInt(userCount.innerHTML)
   currCount += change
-  userCount.innerHTML = currCount
+  setUserCount(currCount)
+}
+
+export function setUserCount (newCount) {
+  userCount.innerHTML = newCount
 }
 
 langSelect.onchange = function () {

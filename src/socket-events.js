@@ -1,7 +1,7 @@
 import socket from './client-socket'
 import Editor from './EditorWrapper'
 import { EventTypes } from './lists'
-import { changeUserCount } from './init-dom'
+import { changeUserCount, setUserCount } from './init-dom'
 
 socket.on(EventTypes.Connection, () => {
   socket.emit(EventTypes.SubscribeToRoom, Editor.getRoomId())
@@ -16,7 +16,13 @@ socket.on(EventTypes.LanguageChange, change => {
 })
 
 socket.on(EventTypes.UserCountChange, change => {
-  changeUserCount(parseInt(change))
+  if (change === 'check') {
+    socket.emit(EventTypes.GetRoomCount, Editor.getRoomId(), userCount => {
+      setUserCount(parseInt(userCount))
+    })
+  } else {
+    changeUserCount(parseInt(change))
+  }
 })
 
 socket.on(EventTypes.ChangeSelection, msg => {

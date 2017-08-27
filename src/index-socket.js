@@ -13,7 +13,7 @@ function updateCount () {
     roomBtn.disabled = true
   } else {
     roomBtn.disabled = false
-    socket.emit(EventTypes.TypeRoomName, roomInput.value, userCount => {
+    socket.emit(EventTypes.GetRoomCount, roomInput.value, userCount => {
       if (!userCount) {
         countWarning.innerHTML = ''
         roomBtn.innerHTML = 'Create room'
