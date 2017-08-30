@@ -28,5 +28,6 @@ function updateCount () {
   }
 }
 
+roomInput.focus()
 roomInput.onkeyup = updateCount
 roomInput.onchange = updateCount
