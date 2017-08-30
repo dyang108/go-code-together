@@ -8,10 +8,7 @@ export var languages = [{
   name: 'Java',
   src: 'ace/mode/java'
 }, {
-  name: 'C',
-  src: 'ace/mode/c_cpp'
-}, {
-  name: 'C++',
+  name: 'C/C++',
   src: 'ace/mode/c_cpp'
 }, {
   name: 'C#',

@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import { EventTypes } from './lists'
+import { EventTypes } from './components/lists'
 
 const socket = io(socketName + '/index')
 socket.connect()

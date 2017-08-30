@@ -43,8 +43,13 @@ func displayEditor(w http.ResponseWriter, r *http.Request, path string) {
             Count: result.Count,
         }
         w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-        t, _ := template.ParseFiles("editor.html")
-        t.Execute(w, tmplVars)
+        if len(path) > len("whiteboard") && path[0:len("whiteboard")] == "whiteboard" {
+            t, _ := template.ParseFiles("whiteboard.html")
+            t.Execute(w, tmplVars)
+        } else {
+            t, _ := template.ParseFiles("editor.html")
+            t.Execute(w, tmplVars)
+        }
     }
 }
 
@@ -72,7 +77,7 @@ func createRoom (roomChannels *map[string]chan bson.M) http.HandlerFunc {
         // need to parse the form in order to get data
         r.ParseForm()
         roomId := strings.Join(r.Form["roomId"], "")
-        if strings.Contains(roomId, " ") || roomId == "about" {
+        if strings.Contains(roomId, " ") || roomId == "whiteboard" {
             http.Redirect(w, r, os.Getenv("BASE_URL"), 301)
             return
         }
@@ -120,9 +125,11 @@ func main() {
         Background: true,
     })
 
-    // references in templates load to /assets
+    // references in templates load from /assets
     http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 
+    http.HandleFunc("/whiteboard", WhiteboardIndex)
+    http.HandleFunc("/create-whiteboard", CreateWhiteboard(&roomChannels))
     http.HandleFunc("/", index)
     http.HandleFunc("/create-room", createRoom(&roomChannels))
 

@@ -28,13 +28,14 @@
             </div>
         </div>
         <pre id="editor">{{.Text}}</pre>
+        <pre id="whiteboard">{{.Text}}</pre>
     </div>
     <script src="/assets/js/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     {{if (eq .Env "development")}}
-    <script src="/assets/js/editor-bundle.js"></script>
+    <script src="/assets/js/whiteboard-bundle.js"></script>
     {{end}}
     {{if (eq .Env "production")}}    
-    <script src="/assets/js/editor-bundle-prod.js"></script>
+    <script src="/assets/js/whiteboard-bundle-prod.js"></script>
     {{end}}
 </body>
 

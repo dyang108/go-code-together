@@ -13,11 +13,11 @@
     <div class="container text-center">
         <div class="jumbotron main-panel col-md-6 col-md-offset-3 col-xs-12">
         <span class="logo glyphicon glyphicon-console"></span>
-            <h2>CllbPad</h2>
+            <h2>CllbPad <i>Whiteboard</i></h2>
             <label>Create a room link to start collaborating.</label>
             <hr>
-            <form class="form-horizontal" action="/create-room" method="POST">
-                <div class="input-group"><span class="input-group-addon">{{printf "%s" .BaseUrl}}</span>
+            <form class="form-horizontal" action="/create-whiteboard" method="POST">
+                <div class="input-group"><span class="input-group-addon">{{printf "%s" .BaseUrl}}whiteboard/</span>
                     <input class="form-control" type="text" name="roomId" id="roomId" autocomplete="off">
                 </div>
                 <h5 class="text-warning" id="countWarning" style="height: 1em"></h5>
